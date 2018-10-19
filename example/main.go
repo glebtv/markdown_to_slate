@@ -46,6 +46,18 @@ var Example6 = `checked list:
 - [x] checked
 `
 
+var Example7 = `Вынесено из #221
+
+## Страница объекта \ застройщика
+
+- ~~Карту уменьшить по вертикали.~~
+- ~~Панораму уменьшить по вертикали (аналогично карте)~~
+
+## Главная страница
+
+- Подвал - все блоки перемешались. **(не понятно, мой скрин аттач)** [![i4.png](/system/i4.jpg)](/system/i4.png?1451419607 "i4.png 22.6 KiB")
+`
+
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
 	//s, err := json.MarshalIndent(data, "", "    ")
@@ -60,7 +72,8 @@ func main() {
 	//Run(Example1)
 	//Run(Example2)
 	//Run(Example3)
-	Run(Example4)
+	//Run(Example4)
 	//Run(Example5)
 	//Run(Example6)
+	Run(Example7)
 }

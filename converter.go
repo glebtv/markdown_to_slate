@@ -133,8 +133,12 @@ func ProcessListNode(node *blackfriday.Node) []Node {
 		allChecks := true
 		for _, node := range list {
 			tx := node.Nodes[0].Leaves[0].Text
+			if len(tx) < 4 {
+				allChecks = false
+				continue
+			}
 			prefix := tx[0:4]
-			if prefix == "[ ] " || prefix == "[x] " {
+			if len(node.Nodes) > 0 && (prefix == "[ ] " || prefix == "[x] ") {
 				node.Nodes[0].Object = "block"
 				node.Nodes[0].Type = "check-list-item"
 				node.Nodes[0].Data = map[string]interface{}{}
