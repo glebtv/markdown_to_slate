@@ -58,6 +58,16 @@ var Example7 = `Вынесено из #221
 - Подвал - все блоки перемешались. **(не понятно, мой скрин аттач)** [![i4.png](/system/i4.jpg)](/system/i4.png?1451419607 "i4.png 22.6 KiB")
 `
 
+var Example8 = `
+- [x] ЗАгрузить аватарки
+
+- [x]  ПРавки текстов 
+
+- Поменять текст в поле “Номер СТС”. на номер  ПТС, 
+- В полях VIN  и номер СТ
+- + загрузить скан
+`
+
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
 	//s, err := json.MarshalIndent(data, "", "    ")
@@ -75,5 +85,6 @@ func main() {
 	//Run(Example4)
 	//Run(Example5)
 	//Run(Example6)
-	Run(Example7)
+	//Run(Example7)
+	Run(Example8)
 }

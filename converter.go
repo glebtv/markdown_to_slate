@@ -132,6 +132,10 @@ func ProcessListNode(node *blackfriday.Node) []Node {
 		//log.Println("list node done, children:")
 		allChecks := true
 		for _, node := range list {
+			if len(node.Nodes) == 0 || len(node.Nodes[0].Leaves) == 0 {
+				allChecks = false
+				continue
+			}
 			tx := node.Nodes[0].Leaves[0].Text
 			if len(tx) < 4 {
 				allChecks = false
