@@ -68,6 +68,8 @@ var Example8 = `
 - + загрузить скан
 `
 
+var Example9 = `начато`
+
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
 	//s, err := json.MarshalIndent(data, "", "    ")
@@ -86,5 +88,6 @@ func main() {
 	//Run(Example5)
 	//Run(Example6)
 	//Run(Example7)
-	Run(Example8)
+	//Run(Example8)
+	Run(Example9)
 }

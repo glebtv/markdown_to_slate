@@ -39,6 +39,7 @@ func ProcessTextNode(node *blackfriday.Node) Leaf {
 
 func ProcessParagraphNode(node *blackfriday.Node) Node {
 	leaves := make([]Leaf, 0)
+	nodes := make([]Node, 0)
 	node.Walk(func(lnode *blackfriday.Node, entering bool) blackfriday.WalkStatus {
 		if node == lnode {
 			return blackfriday.GoToNext
@@ -63,14 +64,53 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 		}
 
 		if lnode.Type == blackfriday.Link {
-			// TODO
-			log.Println("TODO link:", string(lnode.LinkData.Destination), string(lnode.LinkData.Title))
+			if len(leaves) > 0 {
+				nodes = append(nodes, Node{
+					Object: "text",
+					Leaves: leaves,
+				})
+				leaves = []Leaf{}
+			}
+			cn := ProcessParagraphNode(lnode)
+			leaves = append(leaves, cn.Leaves...)
+
+			nodes = append(nodes, Node{
+				Object: "inline",
+				Type:   "link",
+				Data: map[string]interface{}{
+					"href":  lnode.LinkData.Destination,
+					"title": lnode.LinkData.Title,
+				},
+				Leaves: leaves,
+			})
+			leaves = []Leaf{}
 			return blackfriday.SkipChildren
 		}
 
 		if lnode.Type == blackfriday.Image {
-			// TODO
-			log.Println("TODO image:", string(lnode.LinkData.Destination), string(lnode.LinkData.Title))
+			if len(leaves) > 0 {
+				nodes = append(nodes, Node{
+					Object: "text",
+					Leaves: leaves,
+				})
+				leaves = []Leaf{}
+			}
+			cn := ProcessParagraphNode(lnode)
+			leaves = append(leaves, cn.Leaves...)
+
+			nodes = append(nodes, Node{
+				Object: "block",
+				Type:   "image",
+				Data: map[string]interface{}{
+					"src":   lnode.LinkData.Destination,
+					"title": lnode.LinkData.Title,
+				},
+				Nodes: []Node{Node{
+					Object: "text",
+					Leaves: leaves,
+				}},
+			})
+			leaves = []Leaf{}
 			return blackfriday.SkipChildren
 		}
 
@@ -78,15 +118,17 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 		return blackfriday.GoToNext
 	})
 
+	if len(leaves) > 0 {
+		nodes = append(nodes, Node{
+			Object: "text",
+			Leaves: leaves,
+		})
+	}
+
 	list := Node{
 		Object: "block",
 		Type:   "paragraph",
-		Nodes: []Node{
-			Node{
-				Object: "text",
-				Leaves: leaves,
-			},
-		},
+		Nodes:  nodes,
 	}
 	return list
 }
