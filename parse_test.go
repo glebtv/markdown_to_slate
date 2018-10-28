@@ -15,6 +15,19 @@ func Run(input string) string {
 	return string(s)
 }
 
+func RunReverse(input string) string {
+	data := Parse([]byte(input))
+	s, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+	st, err := Stringify(s)
+	if err != nil {
+		panic(err)
+	}
+	return st
+}
+
 func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
 	if a == b {
 		return
@@ -25,18 +38,26 @@ func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
 	t.Fatal(message)
 }
 
+const paragraphExample = `test paragraph`
 const paragraphResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"test paragraph","marks":[]}]}]}]`
 
 func TestParagraph(t *testing.T) {
-	s := Run("test paragraph")
+	s := Run(paragraphExample)
 
 	assertEqual(t, s, paragraphResult, "")
 }
 
+func TestParagraphReverse(t *testing.T) {
+	s := RunReverse(paragraphExample)
+
+	assertEqual(t, s, paragraphExample, "")
+}
+
+const listExample = "- list\n- items"
 const listResult = `[{"object":"block","type":"bulleted-list","nodes":[{"object":"block","type":"list-item","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"list","marks":[]}]}]},{"object":"block","type":"list-item","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"items","marks":[]}]}]}]}]`
 
 func TestList(t *testing.T) {
-	s := Run("- list\n- items")
+	s := Run(listExample)
 
 	assertEqual(t, s, listResult, "")
 }

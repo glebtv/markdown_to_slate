@@ -6,26 +6,6 @@ import (
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
-type Mark struct {
-	Data   map[string]interface{} `json:"data,omitempty"`
-	Object string                 `json:"object,omitempty"`
-	Type   string                 `json:"type,omitempty"`
-}
-
-type Leaf struct {
-	Object string `json:"object"`
-	Text   string `json:"text"`
-	Marks  []Mark `json:"marks"`
-}
-
-type Node struct {
-	Object string                 `json:"object,omitempty"`
-	Type   string                 `json:"type,omitempty"`
-	Data   map[string]interface{} `json:"data,omitempty"`
-	Nodes  []Node                 `json:"nodes,omitempty"`
-	Leaves []Leaf                 `json:"leaves,omitempty"`
-}
-
 func ProcessTextNode(node *blackfriday.Node) Leaf {
 	text := string(node.Literal)
 	leaf := Leaf{
@@ -202,7 +182,6 @@ func ProcessListNode(node *blackfriday.Node) []Node {
 			} else {
 				allChecks = false
 			}
-			//spew.Dump(node)
 		}
 
 		if allChecks {
@@ -214,67 +193,26 @@ func ProcessListNode(node *blackfriday.Node) []Node {
 		}
 	}
 
-	//spew.Dump(list)
-
 	return []Node{Node{Object: "block", Type: listType, Nodes: list}}
 }
 
 func ProcessNode(ret *[]Node, node *blackfriday.Node) blackfriday.WalkStatus {
-	//log.Println("process node:", node.Type, "::", string(node.Literal))
 	if node.Type == blackfriday.Hardbreak {
 		return blackfriday.SkipChildren
 	}
 
 	if node.Type == blackfriday.List {
 		nds := ProcessListNode(node)
-		//spew.Dump(nds)
 		*ret = append(*ret, nds...)
 
 		return blackfriday.SkipChildren
 	}
 
-	//if node.Type == blackfriday.Text {
-	//nds := ProcessTextNode(node)
-	//*ret = append(*ret, nds)
-	//return blackfriday.SkipChildren
-	//}
-
 	if node.Type == blackfriday.Paragraph || node.Type == blackfriday.CodeBlock {
-		//if len(node.Literal) == 0 {
-		//return blackfriday.GoToNext
-		//}
 		nds := ProcessParagraphNode(node)
 		*ret = append(*ret, nds)
 		return blackfriday.SkipChildren
 	}
 
 	return blackfriday.GoToNext
-}
-
-func Parse(input []byte) []Node {
-	//log.Println(string(input))
-
-	processor := blackfriday.New(
-		blackfriday.WithExtensions(
-			blackfriday.CommonExtensions | blackfriday.HardLineBreak | blackfriday.AutoHeadingIDs | blackfriday.Autolink,
-		))
-
-	data := processor.Parse(input)
-
-	ret := make([]Node, 0)
-
-	data.Walk(func(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
-		if node == data {
-			return blackfriday.GoToNext
-		}
-		if !entering {
-			return blackfriday.GoToNext
-		}
-
-		//log.Println(node.Type, "::", string(node.Literal))
-		return ProcessNode(&ret, node)
-		//return r.renderNode(&buf, node, entering)
-	})
-
-	return ret
 }
