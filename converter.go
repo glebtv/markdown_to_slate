@@ -78,8 +78,8 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 				Object: "inline",
 				Type:   "link",
 				Data: map[string]interface{}{
-					"href":  lnode.LinkData.Destination,
-					"title": lnode.LinkData.Title,
+					"href":  string(lnode.LinkData.Destination),
+					"title": string(lnode.LinkData.Title),
 				},
 				Leaves: leaves,
 			})
@@ -102,8 +102,8 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 				Object: "block",
 				Type:   "image",
 				Data: map[string]interface{}{
-					"src":   lnode.LinkData.Destination,
-					"title": lnode.LinkData.Title,
+					"src":   string(lnode.LinkData.Destination),
+					"title": string(lnode.LinkData.Title),
 				},
 				Nodes: []Node{Node{
 					Object: "text",
