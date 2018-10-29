@@ -43,6 +43,41 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 			return blackfriday.SkipChildren
 		}
 
+		if lnode.Type == blackfriday.HTMLSpan {
+			// TODO
+			cn := ProcessParagraphNode(lnode)
+			leaves = append(leaves, cn.Leaves...)
+			return blackfriday.SkipChildren
+		}
+
+		if lnode.Type == blackfriday.Emph {
+			// TODO
+			cn := ProcessParagraphNode(lnode)
+			leaves = append(leaves, cn.Leaves...)
+			return blackfriday.SkipChildren
+		}
+
+		if lnode.Type == blackfriday.Strong {
+			// TODO
+			cn := ProcessParagraphNode(lnode)
+			leaves = append(leaves, cn.Leaves...)
+			return blackfriday.SkipChildren
+		}
+
+		if lnode.Type == blackfriday.Code {
+			// TODO
+			cn := ProcessParagraphNode(lnode)
+			leaves = append(leaves, cn.Leaves...)
+			return blackfriday.SkipChildren
+		}
+
+		if lnode.Type == blackfriday.Del {
+			// TODO
+			cn := ProcessParagraphNode(lnode)
+			leaves = append(leaves, cn.Leaves...)
+			return blackfriday.SkipChildren
+		}
+
 		if lnode.Type == blackfriday.Link {
 			if len(leaves) > 0 {
 				nodes = append(nodes, Node{
