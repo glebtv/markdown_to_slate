@@ -17,7 +17,7 @@ func StringifyNodes(buf *bytes.Buffer, nodes []Node) {
 			for _, leaf := range node.Leaves {
 				if len(leaf.Text) > 0 {
 					if leaf.Text != "" {
-						buf.WriteString(leaf.Text)
+						buf.WriteString(leaf.Text + "\n")
 					}
 				}
 			}

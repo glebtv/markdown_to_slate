@@ -1,8 +1,6 @@
 package markdown_to_slate
 
 import (
-	"log"
-
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
@@ -30,7 +28,9 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 
 		if lnode.Type == blackfriday.Text {
 			leaf := ProcessTextNode(lnode)
-			leaves = append(leaves, leaf)
+			if leaf.Text != "" {
+				leaves = append(leaves, leaf)
+			}
 			return blackfriday.SkipChildren
 		}
 		if lnode.Type == blackfriday.Hardbreak {
@@ -86,9 +86,13 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 				})
 				leaves = []Leaf{}
 			}
+			//spew.Dump(lnode)
 			cn := ProcessParagraphNode(lnode)
-			leaves = append(leaves, cn.Leaves...)
-
+			if len(cn.Nodes) == 1 && cn.Nodes[0].Type == "image" {
+				cn.Nodes[0].Nodes = nil
+				nodes = append(nodes, cn.Nodes[0])
+				return blackfriday.SkipChildren
+			}
 			nodes = append(nodes, Node{
 				Object: "inline",
 				Type:   "link",
@@ -96,10 +100,11 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 					"href":  string(lnode.LinkData.Destination),
 					"title": string(lnode.LinkData.Title),
 				},
-				Leaves: leaves,
+				Leaves: cn.Leaves,
+				Nodes:  cn.Nodes,
 			})
-			leaves = []Leaf{}
 			return blackfriday.SkipChildren
+			//return blackfriday.GoToNext
 		}
 
 		if lnode.Type == blackfriday.Image {
@@ -111,7 +116,6 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 				leaves = []Leaf{}
 			}
 			cn := ProcessParagraphNode(lnode)
-			leaves = append(leaves, cn.Leaves...)
 
 			nodes = append(nodes, Node{
 				Object: "block",
@@ -120,16 +124,13 @@ func ProcessParagraphNode(node *blackfriday.Node) Node {
 					"src":   string(lnode.LinkData.Destination),
 					"title": string(lnode.LinkData.Title),
 				},
-				Nodes: []Node{Node{
-					Object: "text",
-					Leaves: leaves,
-				}},
+				Nodes:  cn.Nodes,
+				Leaves: cn.Leaves,
 			})
-			leaves = []Leaf{}
 			return blackfriday.SkipChildren
 		}
 
-		log.Println("not processing child node in paragraph:", lnode.Type, "::", string(node.Literal))
+		//log.Println("not processing child node in paragraph:", lnode.Type, "::", string(node.Literal))
 		return blackfriday.GoToNext
 	})
 

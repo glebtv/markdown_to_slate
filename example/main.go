@@ -44,6 +44,10 @@ checked list:
 paragraph
 `
 
+//var Example = `
+//[![image.png](/thumb/image.jpg)](/original/image.png "image.png 228.1 KiB")
+//`
+
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
 	//s, err := json.MarshalIndent(data, "", "    ")
