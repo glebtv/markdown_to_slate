@@ -63,13 +63,20 @@ var Example7 = "Code ```inline``` tag\n" +
 
 var Example8 = "Code ```inline``` tag\nline two"
 
-var Example = `
+var Example9 = `
 - [ ] 1) ссылка http://www.test.ru
 
 - [ ] 2) ссылка
 
 - [ ] 3) ссылки
 `
+
+var Example = `http://travelask.ru/admin/travel_comments
+Пример ответа, у которого есть коммент http://travelask.ru/questions/1345272-kakoy-samyy-luchshiy-plyazh-v-suhume
+
+
+Добавляем в админке фильтр "коммент удален". В этот фильтр добавляем комменты, которые получили статус "частично удален". Можно посмотреть тут
+https://drive.google.com/file/d/1Kbbc2slKXKIVZSaD5Vxh6ce6SodAv2pm/view?usp=drivesdk`
 
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))

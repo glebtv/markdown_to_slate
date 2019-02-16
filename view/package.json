@@ -1,0 +1,28 @@
+{
+  "name": "markdown_to_slate_viewer",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "immutable": "^3.8.0",
+    "pretty-bytes": "^5.1.0",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-scripts": "2.1.5",
+    "slate": "^0.44.0",
+    "slate-html-serializer": "^0.7.34",
+    "slate-plain-serializer": "^0.6.34",
+    "slate-react": "^0.21.16"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

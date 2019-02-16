@@ -46,6 +46,44 @@ func ProcessTextChildren(parent *blackfriday.Node, marks []Mark) []Leaf {
 	return leaves
 }
 
+func unnestParagraphs(nodes *[]Node, depth int) {
+	for i, node := range *nodes {
+		//log.Println("after process", i, node.Type)
+		//spew.Dump(nodes)
+		if node.Type == "paragraph" {
+			allPara := true
+			for _, nd := range node.Nodes {
+				if nd.Type != "paragraph" {
+					allPara = false
+				}
+			}
+			if allPara {
+				*nodes = append([]Node{}, (*nodes)[:i]...)
+				*nodes = append(*nodes, node.Nodes...)
+				*nodes = append(*nodes, (*nodes)[i:len(*nodes)-1]...)
+			} else {
+				//if depth > 0 {
+				//(*nodes)[i].Type = "div"
+				//}
+				if (*nodes)[i].Nodes[0].Type == "paragraph" {
+					(*nodes)[i].Type = "div"
+				}
+				if len((*nodes)[i].Nodes[0].Nodes) > 0 {
+					if (*nodes)[i].Nodes[0].Nodes[0].Type == "paragraph" {
+						(*nodes)[i].Type = "div"
+					}
+				}
+			}
+		}
+	}
+
+	for i, _ := range *nodes {
+		if len((*nodes)[i].Nodes) > 0 {
+			unnestParagraphs(&(*nodes)[i].Nodes, depth+1)
+		}
+	}
+}
+
 func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 	nodes := make([]Node, 0)
 
@@ -94,23 +132,7 @@ func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 		}
 	}
 
-	for i, node := range nodes {
-		//log.Println("after process", i, node.Type)
-		//spew.Dump(nodes)
-		if node.Type == "paragraph" {
-			allPara := true
-			for _, nd := range node.Nodes {
-				if nd.Type != "paragraph" {
-					allPara = false
-				}
-			}
-			if allPara {
-				nodes = append([]Node{}, nodes[:i]...)
-				nodes = append(nodes, node.Nodes...)
-				nodes = append(nodes, nodes[i:len(nodes)-1]...)
-			}
-		}
-	}
+	unnestParagraphs(&nodes, 0)
 
 	//log.Println("dump level: ", level)
 	//for i, node := range nodes {
@@ -300,8 +322,14 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 		//return &nds[0]
 		//}
 
+		ltype := "block"
+
+		if nds[0].Nodes[0].Type == "text" {
+			ltype = "inline"
+		}
+
 		return &Node{
-			Object: "inline",
+			Object: ltype,
 			Type:   "link",
 			Data: map[string]interface{}{
 				"href":  string(node.LinkData.Destination),
