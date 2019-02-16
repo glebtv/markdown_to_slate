@@ -94,6 +94,24 @@ func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 		}
 	}
 
+	for i, node := range nodes {
+		//log.Println("after process", i, node.Type)
+		//spew.Dump(nodes)
+		if node.Type == "paragraph" {
+			allPara := true
+			for _, nd := range node.Nodes {
+				if nd.Type != "paragraph" {
+					allPara = false
+				}
+			}
+			if allPara {
+				nodes = append([]Node{}, nodes[:i]...)
+				nodes = append(nodes, node.Nodes...)
+				nodes = append(nodes, nodes[i:len(nodes)-1]...)
+			}
+		}
+	}
+
 	//log.Println("dump level: ", level)
 	//for i, node := range nodes {
 	//spew.Dump(i, node)

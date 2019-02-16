@@ -57,11 +57,19 @@ var Example5 = `
 `
 var Example6 = "test:\n```ruby\ntest code\n```"
 
-var Example = "Code ```inline``` tag\n" +
+var Example7 = "Code ```inline``` tag\n" +
 	"Code block:\n" +
 	"```\nblock code\ntest\n```\nafter code"
 
 var Example8 = "Code ```inline``` tag\nline two"
+
+var Example = `
+- [ ] 1) ссылка http://www.test.ru
+
+- [ ] 2) ссылка
+
+- [ ] 3) ссылки
+`
 
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
