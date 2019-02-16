@@ -62,16 +62,19 @@ func unnestParagraphs(nodes *[]Node, depth int) {
 				*nodes = append(*nodes, node.Nodes...)
 				*nodes = append(*nodes, (*nodes)[i:len(*nodes)-1]...)
 			} else {
-				//if depth > 0 {
-				//(*nodes)[i].Type = "div"
-				//}
-				if (*nodes)[i].Nodes[0].Type == "paragraph" {
+				*nodes = append(*nodes, node)
+			}
+		}
+	}
+
+	for i, _ := range *nodes {
+		if len((*nodes)[i].Nodes) > 0 {
+			if (*nodes)[i].Nodes[0].Type == "paragraph" {
+				(*nodes)[i].Type = "div"
+			}
+			if len((*nodes)[i].Nodes[0].Nodes) > 0 {
+				if (*nodes)[i].Nodes[0].Nodes[0].Type == "paragraph" {
 					(*nodes)[i].Type = "div"
-				}
-				if len((*nodes)[i].Nodes[0].Nodes) > 0 {
-					if (*nodes)[i].Nodes[0].Nodes[0].Type == "paragraph" {
-						(*nodes)[i].Type = "div"
-					}
 				}
 			}
 		}
@@ -324,8 +327,10 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 
 		ltype := "block"
 
-		if nds[0].Nodes[0].Type == "text" {
-			ltype = "inline"
+		if len(nds[0].Nodes) > 0 {
+			if nds[0].Nodes[0].Type == "text" {
+				ltype = "inline"
+			}
 		}
 
 		return &Node{
