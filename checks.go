@@ -3,7 +3,15 @@ package markdown_to_slate
 func processChecks(prnodes *[]Node) bool {
 	allChecks := true
 	for i, node := range *prnodes {
-		if len(node.Nodes) == 0 || len(node.Nodes[0].Nodes) == 0 {
+		if len(node.Nodes) == 0 {
+			allChecks = false
+			continue
+		}
+		if len(node.Nodes[0].Nodes) == 0 {
+			allChecks = false
+			continue
+		}
+		if len(node.Nodes[0].Nodes[0].Leaves) == 0 {
 			allChecks = false
 			continue
 		}
