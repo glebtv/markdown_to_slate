@@ -28,8 +28,12 @@ func (p *Parser) Parse(input []byte) []Node {
 	//scs := spew.ConfigState{DisableMethods: true, Indent: "\t"}
 	//scs.Dump(data)
 
-	nodes := ProcessChildren(data)
+	if data.FirstChild != nil {
+		nodes := ProcessChildren(data.FirstChild, 0)
+		return nodes
+	}
+
+	return []Node{}
 	//scs.Dump(nodes)
 
-	return nodes
 }

@@ -65,7 +65,7 @@ var Example = "Code ```inline``` tag\nline two"
 
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
-	//s, err := json.MarshalIndent(data, "", "    ")
+	//s, err := json.Marshal(data)
 	s, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		panic(err)

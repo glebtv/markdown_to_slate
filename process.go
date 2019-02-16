@@ -3,7 +3,6 @@ package markdown_to_slate
 import (
 	"log"
 
-	"github.com/davecgh/go-spew/spew"
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
@@ -32,6 +31,7 @@ func ProcessTextChildren(parent *blackfriday.Node, marks []Mark) []Leaf {
 		if node == nil {
 			break
 		}
+		//log.Println("process text node", node)
 		l := ProcessTextNode(node)
 
 		//log.Println(l.Text)
@@ -46,7 +46,7 @@ func ProcessTextChildren(parent *blackfriday.Node, marks []Mark) []Leaf {
 	return leaves
 }
 
-func ProcessChildren(parent *blackfriday.Node) []Node {
+func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 	nodes := make([]Node, 0)
 
 	if parent.FirstChild == nil {
@@ -55,11 +55,37 @@ func ProcessChildren(parent *blackfriday.Node) []Node {
 	//log.Println(len(parent.Literal))
 	//log.Println(parent.Text)
 
+	//log.Println("process level: ", level)
+
+	wrapNext := true
 	node := parent.FirstChild
 	for {
-		n := ProcessNode(node)
+		n, _wrapNext := ProcessNode(node, level)
+		//log.Println("processed node:", node, wrapNext, _wrapNext)
+		//log.Println("")
 		if n != nil {
-			nodes = append(nodes, *n)
+			if wrapNext && n.Object == "text" {
+				nodes = append(nodes, Node{
+					Object: "block",
+					Type:   "paragraph",
+					Nodes:  []Node{*n},
+				})
+			} else {
+				//if n.Object == "text" {
+				//log.Println("!!!!!!!!!!!!!!")
+				//spew.Dump(n)
+				//}
+				if n.Object == "text" && len(nodes) > 0 && nodes[len(nodes)-1].Type == "paragraph" {
+					nodes[len(nodes)-1].Nodes = append(nodes[len(nodes)-1].Nodes, *n)
+				} else {
+					nodes = append(nodes, *n)
+				}
+			}
+		}
+
+		wrapNext = false
+		if _wrapNext {
+			wrapNext = true
 		}
 
 		node = node.Next
@@ -68,34 +94,53 @@ func ProcessChildren(parent *blackfriday.Node) []Node {
 		}
 	}
 
+	//log.Println("dump level: ", level)
+	//for i, node := range nodes {
+	//spew.Dump(i, node)
+	//}
+	//log.Println("done level: ", level)
+
 	return nodes
 }
 
-func ProcessNode(node *blackfriday.Node) *Node {
+func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
+	//log.Println("process node:", node)
 	if node.Type == blackfriday.Hardbreak {
-		return nil
+		return &Node{
+			Object: "block",
+			Type:   "paragraph",
+			Nodes: []Node{Node{
+				Object: "text",
+				Leaves: []Leaf{Leaf{
+					Object: "leaf",
+					Text:   string(""),
+					Marks:  []Mark{},
+				}},
+			}},
+		}, true
+		//return nil
 	}
 
 	if node.Type == blackfriday.Text {
 		l := ProcessTextNode(node)
 		if l.Text == "" {
-			return nil
+			return nil, false
 		}
 		return &Node{
 			Object: "text",
 			Leaves: []Leaf{l},
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.HTMLSpan {
 		l := ProcessTextNode(node)
 		if l.Text == "" {
-			return nil
+			return nil, false
 		}
 		return &Node{
 			Object: "text",
 			Leaves: []Leaf{l},
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Emph {
@@ -106,7 +151,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 		return &Node{
 			Object: "text",
 			Leaves: lvs,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Strong {
@@ -117,11 +162,10 @@ func ProcessNode(node *blackfriday.Node) *Node {
 		return &Node{
 			Object: "text",
 			Leaves: lvs,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Code {
-		spew.Dump(node.Literal)
 		leaf := ProcessTextNode(node)
 		leaf.Marks = []Mark{Mark{
 			Object: "mark",
@@ -130,7 +174,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 		return &Node{
 			Object: "text",
 			Leaves: []Leaf{leaf},
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Del {
@@ -141,7 +185,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 		return &Node{
 			Object: "text",
 			Leaves: lvs,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.List {
@@ -152,7 +196,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			listType = "bulleted-list"
 		}
 
-		nds := ProcessChildren(node)
+		nds := ProcessChildren(node, level+1)
 
 		if listType == "bulleted-list" {
 			allChecks := processChecks(&nds)
@@ -161,7 +205,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 					Object: "block",
 					Type:   "paragraph",
 					Nodes:  nds,
-				}
+				}, false
 			}
 		}
 
@@ -169,22 +213,22 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			Object: "block",
 			Type:   listType,
 			Nodes:  nds,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Heading {
-		nds := ProcessChildren(node)
+		nds := ProcessChildren(node, level+1)
 		return &Node{
 			Object: "block",
 			Type:   "heading-" + hLevels[node.HeadingData.Level],
 			Nodes:  nds,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.CodeBlock {
 		//scs := spew.ConfigState{DisableMethods: true, Indent: "\t"}
 		//scs.Dump(node.Literal)
-		nds := ProcessChildren(node)
+		nds := ProcessChildren(node, level+1)
 		//spew.Dump(nds)
 		if string(node.Literal) != "" {
 			nds = append(nds, Node{
@@ -197,29 +241,33 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			Object: "block",
 			Type:   "code",
 			Nodes:  nds,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Item {
-		nds := ProcessChildren(node)
+		nds := ProcessChildren(node, level+1)
 		return &Node{
 			Object: "block",
 			Type:   "list-item",
 			Nodes:  nds,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Paragraph {
-		nds := ProcessChildren(node)
+		//log.Println("para", node.Literal)
+		nds := ProcessChildren(node, level+1)
+		if len(nds) == 1 && nds[0].Type == "paragraph" {
+			return &nds[0], false
+		}
 		return &Node{
 			Object: "block",
 			Type:   "paragraph",
 			Nodes:  nds,
-		}
+		}, false
 	}
 
 	if node.Type == blackfriday.Link {
-		nds := ProcessChildren(node)
+		nds := ProcessChildren(node, level+1)
 		//if len(nds) == 1 && nds[0].Type == "image" {
 		//nds[0].Nodes = nil
 		//return &nds[0]
@@ -233,7 +281,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 				"title": string(node.LinkData.Title),
 			},
 			Nodes: nds,
-		}
+		}, false
 		//return blackfriday.GoToNext
 	}
 
@@ -245,9 +293,9 @@ func ProcessNode(node *blackfriday.Node) *Node {
 				"href":  string(node.LinkData.Destination),
 				"title": string(node.LinkData.Title),
 			},
-		}
+		}, false
 	}
 
 	log.Println("not processing child node in paragraph:", node.Type, "::", string(node.Literal))
-	return nil
+	return nil, false
 }
