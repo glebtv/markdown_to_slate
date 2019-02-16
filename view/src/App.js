@@ -44,7 +44,7 @@ class App extends Component {
     const { attributes, children, node, isFocused } = props
     const { data } = node
 
-    console.log("render node", node.type, node)
+    //console.log("render node", node.type, node)
 
     switch (node.type) {
       case 'code':
@@ -65,7 +65,7 @@ class App extends Component {
 
       case 'link':
         const href = data.get('href')
-        console.log("link", children)
+        //console.log("link", children)
         return (
           <a {...attributes} href={href} target="_blank" rel="nofollow noopener noreferrer">
             {children}

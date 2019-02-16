@@ -71,12 +71,13 @@ var Example9 = `
 - [ ] 3) ссылки
 `
 
-var Example = `http://travelask.ru/admin/travel_comments
-Пример ответа, у которого есть коммент http://travelask.ru/questions/1345272-kakoy-samyy-luchshiy-plyazh-v-suhume
+var Example = `http://test.ru
+Пример ответа, у которого есть коммент http://test.ru
 
 
-Добавляем в админке фильтр "коммент удален". В этот фильтр добавляем комменты, которые получили статус "частично удален". Можно посмотреть тут
-https://drive.google.com/file/d/1Kbbc2slKXKIVZSaD5Vxh6ce6SodAv2pm/view?usp=drivesdk`
+Добавляем в админке фильтр
+https://drive.google.com/
+`
 
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))

@@ -47,7 +47,7 @@ func ProcessTextChildren(parent *blackfriday.Node, marks []Mark) []Leaf {
 }
 
 func unnestParagraphs(nodes *[]Node, depth int) {
-	for i, node := range *nodes {
+	for _, node := range *nodes {
 		//log.Println("after process", i, node.Type)
 		//spew.Dump(nodes)
 		if node.Type == "paragraph" {
@@ -58,23 +58,26 @@ func unnestParagraphs(nodes *[]Node, depth int) {
 				}
 			}
 			if allPara {
-				*nodes = append([]Node{}, (*nodes)[:i]...)
-				*nodes = append(*nodes, node.Nodes...)
-				*nodes = append(*nodes, (*nodes)[i:len(*nodes)-1]...)
-			} else {
-				*nodes = append(*nodes, node)
+				nds := []Node{}
+				for _, nd := range node.Nodes {
+					nds = append(nds, nd.Nodes...)
+				}
+				//log.Println("unnset node", node.Nodes, "to", nds)
+				node.Nodes = nds
 			}
 		}
 	}
 
 	for i, _ := range *nodes {
-		if len((*nodes)[i].Nodes) > 0 {
-			if (*nodes)[i].Nodes[0].Type == "paragraph" {
-				(*nodes)[i].Type = "div"
-			}
-			if len((*nodes)[i].Nodes[0].Nodes) > 0 {
-				if (*nodes)[i].Nodes[0].Nodes[0].Type == "paragraph" {
+		if (*nodes)[i].Type == "paragraph" {
+			if len((*nodes)[i].Nodes) > 0 {
+				if (*nodes)[i].Nodes[0].Type == "paragraph" {
 					(*nodes)[i].Type = "div"
+				}
+				if len((*nodes)[i].Nodes[0].Nodes) > 0 {
+					if (*nodes)[i].Nodes[0].Nodes[0].Type == "paragraph" {
+						(*nodes)[i].Type = "div"
+					}
 				}
 			}
 		}
