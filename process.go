@@ -3,6 +3,7 @@ package markdown_to_slate
 import (
 	"log"
 
+	"github.com/davecgh/go-spew/spew"
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
@@ -81,8 +82,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			return nil
 		}
 		return &Node{
-			Object: "inline",
-			Type:   "inline",
+			Object: "text",
 			Leaves: []Leaf{l},
 		}
 	}
@@ -93,8 +93,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			return nil
 		}
 		return &Node{
-			Object: "inline",
-			Type:   "inline",
+			Object: "text",
 			Leaves: []Leaf{l},
 		}
 	}
@@ -105,8 +104,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			Type:   "italic",
 		}})
 		return &Node{
-			Object: "inline",
-			Type:   "inline",
+			Object: "text",
 			Leaves: lvs,
 		}
 	}
@@ -117,21 +115,21 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			Type:   "bold",
 		}})
 		return &Node{
-			Object: "inline",
-			Type:   "inline",
+			Object: "text",
 			Leaves: lvs,
 		}
 	}
 
 	if node.Type == blackfriday.Code {
-		lvs := ProcessTextChildren(node, []Mark{Mark{
+		spew.Dump(node.Literal)
+		leaf := ProcessTextNode(node)
+		leaf.Marks = []Mark{Mark{
 			Object: "mark",
 			Type:   "code",
-		}})
+		}}
 		return &Node{
-			Object: "inline",
-			Type:   "inline",
-			Leaves: lvs,
+			Object: "text",
+			Leaves: []Leaf{leaf},
 		}
 	}
 
@@ -141,8 +139,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 			Type:   "del",
 		}})
 		return &Node{
-			Object: "inline",
-			Type:   "inline",
+			Object: "text",
 			Leaves: lvs,
 		}
 	}
@@ -186,7 +183,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 
 	if node.Type == blackfriday.CodeBlock {
 		//scs := spew.ConfigState{DisableMethods: true, Indent: "\t"}
-		//scs.Dump(node)
+		//scs.Dump(node.Literal)
 		nds := ProcessChildren(node)
 		//spew.Dump(nds)
 		if string(node.Literal) != "" {

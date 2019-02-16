@@ -55,7 +55,11 @@ var Example4 = `
 var Example5 = `
 [![image.png](/thumb/image.jpg)](/original/image.png "image.png 228.1 KiB")
 `
-var Example = "test:\n```ruby\ntest code\n```"
+var Example6 = "test:\n```ruby\ntest code\n```"
+
+var Example = "Code ```inline``` tag\n" +
+	"Code block:\n" +
+	"```\nblock code\ntest\n```\nafter code"
 
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
