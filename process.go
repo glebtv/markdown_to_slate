@@ -61,7 +61,7 @@ func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 	node := parent.FirstChild
 	for {
 		n, _wrapNext := ProcessNode(node, level)
-		log.Println("processed node:", node, wrapNext, _wrapNext)
+		//log.Println("processed node:", node, wrapNext, _wrapNext)
 		//log.Println("")
 		if n != nil {
 			if wrapNext && n.Object == "text" {
