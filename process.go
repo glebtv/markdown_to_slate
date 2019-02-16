@@ -2,10 +2,18 @@ package markdown_to_slate
 
 import (
 	"log"
-	"strconv"
 
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
+
+var hLevels = map[int]string{
+	1: "one",
+	2: "two",
+	3: "three",
+	4: "four",
+	5: "five",
+	6: "six",
+}
 
 func ProcessTextNode(node *blackfriday.Node) Leaf {
 	return Leaf{
@@ -171,7 +179,7 @@ func ProcessNode(node *blackfriday.Node) *Node {
 		nds := ProcessChildren(node)
 		return &Node{
 			Object: "block",
-			Type:   "heading-" + strconv.Itoa(node.HeadingData.Level),
+			Type:   "heading-" + hLevels[node.HeadingData.Level],
 			Nodes:  nds,
 		}
 	}
