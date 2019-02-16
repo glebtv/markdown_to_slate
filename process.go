@@ -61,7 +61,7 @@ func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 	node := parent.FirstChild
 	for {
 		n, _wrapNext := ProcessNode(node, level)
-		//log.Println("processed node:", node, wrapNext, _wrapNext)
+		log.Println("processed node:", node, wrapNext, _wrapNext)
 		//log.Println("")
 		if n != nil {
 			if wrapNext && n.Object == "text" {
@@ -106,18 +106,19 @@ func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 	//log.Println("process node:", node)
 	if node.Type == blackfriday.Hardbreak {
-		return &Node{
-			Object: "block",
-			Type:   "paragraph",
-			Nodes: []Node{Node{
-				Object: "text",
-				Leaves: []Leaf{Leaf{
-					Object: "leaf",
-					Text:   string(""),
-					Marks:  []Mark{},
-				}},
-			}},
-		}, true
+		//return &Node{
+		//Object: "block",
+		//Type:   "paragraph",
+		//Nodes: []Node{Node{
+		//Object: "text",
+		//Leaves: []Leaf{Leaf{
+		//Object: "leaf",
+		//Text:   string(""),
+		//Marks:  []Mark{},
+		//}},
+		//}},
+		//}, true
+		return nil, true
 		//return nil
 	}
 
@@ -231,10 +232,18 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 		nds := ProcessChildren(node, level+1)
 		//spew.Dump(nds)
 		if string(node.Literal) != "" {
+			l := ProcessTextNode(node)
+			// remove last newline of code block
+			if l.Text[len(l.Text)-1] == byte('\n') {
+				l.Text = l.Text[:len(l.Text)-1]
+			}
 			nds = append(nds, Node{
 				Object: "block",
 				Type:   "code_line",
-				Leaves: []Leaf{ProcessTextNode(node)},
+				Nodes: []Node{Node{
+					Object: "text",
+					Leaves: []Leaf{l},
+				}},
 			})
 		}
 		return &Node{
