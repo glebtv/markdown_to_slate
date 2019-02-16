@@ -7,7 +7,7 @@ import (
 	"github.com/glebtv/markdown_to_slate"
 )
 
-var Example = "Code ```inline``` tag\n" +
+var Example1 = "Code ```inline``` tag\n" +
 	"Code block:\n" +
 	"```\nblock code\ntest\n```\n" +
 	`numbered list,
@@ -42,16 +42,25 @@ checked list:
 ### h3
 
 paragraph
+
+` + "```ruby\ntest code\n```"
+
+var Example2 = "## test\n### test 3"
+var Example3 = "**test** *test*"
+var Example4 = `
+- [ ] unchecked
+- [x] checked
 `
 
-//var Example = `
-//[![image.png](/thumb/image.jpg)](/original/image.png "image.png 228.1 KiB")
-//`
+var Example5 = `
+[![image.png](/thumb/image.jpg)](/original/image.png "image.png 228.1 KiB")
+`
+var Example = "test:\n```ruby\ntest code\n```"
 
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
 	//s, err := json.MarshalIndent(data, "", "    ")
-	s, err := json.Marshal(data)
+	s, err := json.MarshalIndent(data, "", "    ")
 	if err != nil {
 		panic(err)
 	}

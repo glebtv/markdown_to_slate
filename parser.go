@@ -12,8 +12,12 @@ func NewParser() *Parser {
 	parser := &Parser{}
 	parser.processor = blackfriday.New(
 		blackfriday.WithExtensions(
-			blackfriday.CommonExtensions | blackfriday.HardLineBreak | blackfriday.AutoHeadingIDs | blackfriday.Autolink,
-		))
+			blackfriday.CommonExtensions |
+				blackfriday.HardLineBreak |
+				blackfriday.AutoHeadingIDs |
+				blackfriday.Autolink,
+		),
+	)
 
 	return parser
 }
@@ -21,18 +25,11 @@ func NewParser() *Parser {
 func (p *Parser) Parse(input []byte) []Node {
 	data := p.processor.Parse(input)
 
-	ret := make([]Node, 0)
+	//scs := spew.ConfigState{DisableMethods: true, Indent: "\t"}
+	//scs.Dump(data)
 
-	data.Walk(func(node *blackfriday.Node, entering bool) blackfriday.WalkStatus {
-		if node == data {
-			return blackfriday.GoToNext
-		}
-		if !entering {
-			return blackfriday.GoToNext
-		}
+	nodes := ProcessChildren(data)
+	//scs.Dump(nodes)
 
-		return ProcessNode(&ret, node)
-	})
-
-	return ret
+	return nodes
 }
