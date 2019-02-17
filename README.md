@@ -1,6 +1,6 @@
 Markdown to SlateJS editor state converter in golang
 
-Current state: proof-of-concept (not working)
+Current state: prototype (most stuff works, has some problems)
 
 https://slatejs.org/
 
