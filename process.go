@@ -109,11 +109,13 @@ func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 		//log.Println("")
 		if n != nil {
 			if wrapNext && n.Object == "text" {
-				nodes = append(nodes, Node{
-					Object: "block",
-					Type:   "paragraph",
-					Nodes:  []Node{*n},
-				})
+				//log.Println("wrapNext runs")
+				//nodes = append(nodes, Node{
+				//Object: "block",
+				//Type:   "paragraph",
+				//Nodes:  []Node{*n},
+				//})
+				nodes = append(nodes, *n)
 			} else {
 				//if n.Object == "text" {
 				//log.Println("!!!!!!!!!!!!!!")
@@ -324,15 +326,33 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 	if node.Type == blackfriday.Link {
 		//scs := spew.ConfigState{DisableMethods: true, Indent: "\t"}
 		//node.Parent = nil
-		//scs.Dump(node)
+		//node.FirstChild.Parent = nil
+		//scs.Dump(node.FirstChild)
 
-		nds := ProcessChildren(node, level+1)
+		//log.Println(node.FirstChild.Type)
+
+		var nds []Node
+		ltype := "block"
+		if node.FirstChild.Next == nil && node.FirstChild.Type == blackfriday.Text {
+			//log.Println("found text link")
+			l := ProcessTextNode(node.FirstChild)
+			if l.Text == "" {
+				l.Text = "link"
+			}
+			nds = []Node{Node{
+				Object: "text",
+				Leaves: []Leaf{l},
+			}}
+			ltype = "inline"
+		} else {
+			nds = ProcessChildren(node, level+1)
+		}
+		//nds[0].Type == "paragraph"
+
 		//if len(nds) == 1 && nds[0].Type == "image" {
 		//nds[0].Nodes = nil
 		//return &nds[0]
 		//}
-
-		ltype := "block"
 
 		//log.Println("nodes1:", len(nds), nds[0].Type)
 		//log.Println("nodes2:", len(nds[0].Nodes), nds[0].Nodes[0].Type, nds[0].Nodes[0].Object)
