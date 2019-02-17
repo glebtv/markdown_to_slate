@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 
 	"github.com/glebtv/markdown_to_slate"
 )
@@ -86,7 +86,7 @@ func Run(input string) {
 	if err != nil {
 		panic(err)
 	}
-	log.Println(string(s))
+	fmt.Println(string(s))
 }
 
 func main() {

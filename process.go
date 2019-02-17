@@ -322,6 +322,10 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 	}
 
 	if node.Type == blackfriday.Link {
+		//scs := spew.ConfigState{DisableMethods: true, Indent: "\t"}
+		//node.Parent = nil
+		//scs.Dump(node)
+
 		nds := ProcessChildren(node, level+1)
 		//if len(nds) == 1 && nds[0].Type == "image" {
 		//nds[0].Nodes = nil
@@ -330,11 +334,13 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 
 		ltype := "block"
 
-		if len(nds[0].Nodes) > 0 {
-			if nds[0].Nodes[0].Type == "text" {
-				ltype = "inline"
-			}
-		}
+		//log.Println("nodes1:", len(nds), nds[0].Type)
+		//log.Println("nodes2:", len(nds[0].Nodes), nds[0].Nodes[0].Type, nds[0].Nodes[0].Object)
+
+		//if len(nds) == 1 && nds[0].Type == "paragraph" && len(nds[0].Nodes) == 1 && nds[0].Nodes[0].Object == "text" {
+		//ltype = "inline"
+		//nds[0] = nds[0].Nodes[0]
+		//}
 
 		return &Node{
 			Object: ltype,

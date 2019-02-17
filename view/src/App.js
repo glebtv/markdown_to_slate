@@ -65,7 +65,7 @@ class App extends Component {
 
       case 'link':
         const href = data.get('href')
-        //console.log("link", children)
+        //console.log("link", href, children)
         return (
           <a {...attributes} href={href} target="_blank" rel="nofollow noopener noreferrer">
             {children}
@@ -126,6 +126,8 @@ class App extends Component {
       case 'numbered-list':
         return <ol {...attributes}>{children}</ol>
       case 'div':
+        //console.log("render div", children)
+        //return <div {...attributes}>div: {children} /div</div>
         return <div {...attributes}>{children}</div>
       case 'paragraph':
         return <div {...attributes}>{children}</div>
@@ -196,6 +198,9 @@ class App extends Component {
           renderNode={this.renderNode}
           renderMark={this.renderMark}
         />
+        <button type="button" onClick={(e) => {
+          console.log(this.state.value.toJSON().document.nodes)
+        }}>log state</button>
       </div>
     );
   }
