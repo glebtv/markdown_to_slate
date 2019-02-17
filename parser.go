@@ -1,6 +1,7 @@
 package markdown_to_slate
 
 import (
+	"github.com/gernest/mention"
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
@@ -22,7 +23,7 @@ func NewParser() *Parser {
 	return parser
 }
 
-func (p *Parser) Parse(input []byte) []Node {
+func (p *Parser) ParseWithoutMentions(input []byte) []Node {
 	data := p.processor.Parse(input)
 
 	//scs := spew.ConfigState{DisableMethods: true, Indent: "\t"}
@@ -47,5 +48,30 @@ func (p *Parser) Parse(input []byte) []Node {
 
 	//return []Node{}
 	//scs.Dump(nodes)
+}
 
+func (p *Parser) Parse(input []byte) []Node {
+	issues := mention.GetTags('#', string(input))
+
+	for i, _ := range issues {
+		index := len(issues) - i - 1
+		issue := issues[index]
+		//log.Println("replace issue", index, issue)
+		//spew.Dump(issue)
+		replace := "[#" + issue.Tag + "]" + "(#" + issue.Tag + ")"
+		input = []byte(string(input[:issue.Index]) + replace + string(input[issue.Index+len(issue.Tag)+1:]))
+	}
+
+	mentions := mention.GetTags('@', string(input))
+
+	for i, _ := range mentions {
+		index := len(mentions) - i - 1
+		mention := mentions[index]
+		replace := "[@" + mention.Tag + "]" + "(@" + mention.Tag + ")"
+		input = []byte(string(input[:mention.Index]) + replace + string(input[mention.Index+len(mention.Tag)+1:]))
+	}
+
+	//log.Println("replaced mentions:", string(input))
+
+	return p.ParseWithoutMentions(input)
 }

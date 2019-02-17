@@ -71,12 +71,17 @@ var Example9 = `
 - [ ] 3) ссылки
 `
 
-var Example = `http://test.ru
+var Example10 = `http://test.ru
 Пример ответа, у которого есть коммент http://test.ru
 
 
 Добавляем в админке фильтр
 https://drive.google.com/
+`
+
+var Example = `test issue: #5 #6
+
+test mention: @test @gleb
 `
 
 func Run(input string) {
