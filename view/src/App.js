@@ -74,12 +74,13 @@ class App extends Component {
 
       case 'mention':
         const userID = data.get('user')
+        console.log("mention")
         return (
           <a
             contentEditable={false}
             {...attributes}
           >
-            {userID}
+            mention @{userID}
           </a>
         )
 
@@ -93,7 +94,6 @@ class App extends Component {
             {...attributes}
           >
             задача {issueID}
-            {children}
           </a>
         )
 

@@ -154,20 +154,10 @@ func ProcessChildren(parent *blackfriday.Node, level int) []Node {
 func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 	//log.Println("process node:", node)
 	if node.Type == blackfriday.Hardbreak {
-		//return &Node{
-		//Object: "block",
-		//Type:   "paragraph",
-		//Nodes: []Node{Node{
-		//Object: "text",
-		//Leaves: []Leaf{Leaf{
-		//Object: "leaf",
-		//Text:   string(""),
-		//Marks:  []Mark{},
-		//}},
-		//}},
-		//}, true
 		return nil, true
-		//return nil
+	}
+	if node.Type == blackfriday.HorizontalRule {
+		return nil, true
 	}
 
 	if node.Type == blackfriday.Text {
@@ -307,6 +297,35 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 			Object: "block",
 			Type:   "list-item",
 			Nodes:  nds,
+		}, false
+	}
+
+	if node.Type == blackfriday.BlockQuote {
+		nds := ProcessChildren(node, level+1)
+		return &Node{
+			Object: "block",
+			Type:   "block-quote",
+			Nodes:  nds,
+		}, false
+	}
+
+	if node.Type == blackfriday.HTMLBlock {
+		//log.Println("html:", node.Literal)
+		if string(node.Literal) == "" {
+			return nil, false
+		}
+		l := ProcessTextNode(node)
+		return &Node{
+			Object: "block",
+			Type:   "code",
+			Nodes: []Node{Node{
+				Object: "block",
+				Type:   "code_line",
+				Nodes: []Node{Node{
+					Object: "text",
+					Leaves: []Leaf{l},
+				}},
+			}},
 		}, false
 	}
 
