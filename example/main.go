@@ -115,6 +115,12 @@ var Example = `
 <!-- /Yandex.Metrika counter -->
 `
 
+var Example13 = `Вот тут в макете дбавили рамку для области ввода текста
+https://drive.google.com/file/d/fileid/view?usp=drivesdk
+
+Макет
+https://www.figma.com/file/fileid?node-id=0%3A1`
+
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
 	//s, err := json.Marshal(data)
