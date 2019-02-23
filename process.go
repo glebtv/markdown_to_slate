@@ -43,6 +43,12 @@ func ProcessTextChildren(parent *blackfriday.Node, marks []Mark) []Leaf {
 		node = node.Next
 	}
 
+	if len(leaves) > 0 {
+		for i, l := range leaves {
+			leaves[i].Text = l.Text + "\n"
+		}
+	}
+
 	return leaves
 }
 
@@ -319,14 +325,23 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 			Object: "block",
 			Type:   "code",
 			Nodes: []Node{Node{
-				Object: "block",
-				Type:   "code_line",
-				Nodes: []Node{Node{
-					Object: "text",
-					Leaves: []Leaf{l},
-				}},
+				Object: "text",
+				Leaves: []Leaf{l},
 			}},
 		}, false
+
+		//return &Node{
+		//Object: "block",
+		//Type:   "code",
+		//Nodes: []Node{Node{
+		//Object: "block",
+		//Type:   "code_line",
+		//Nodes: []Node{Node{
+		//Object: "text",
+		//Leaves: []Leaf{l},
+		//}},
+		//}},
+		//}, false
 	}
 
 	if node.Type == blackfriday.Paragraph {

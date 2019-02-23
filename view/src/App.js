@@ -48,17 +48,17 @@ class App extends Component {
 
     switch (node.type) {
       case 'code':
-        return <code {...props}>
+        return <code {...attributes}>
           {children}
         </code>
       case 'code_line':
-        return <div {...props}>
+        return <div {...attributes}>
           {children}
         </div>
 
       case 'check-list-item':
         return (
-          <div>
+          <div {...attributes}>
             {children}
           </div>
         )
