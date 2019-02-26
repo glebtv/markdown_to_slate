@@ -14,6 +14,7 @@ class App extends Component {
     pending: false,
     examples: [],
     example: "",
+    expandAll: false,
   }
 
   endpoint() {
@@ -66,16 +67,40 @@ class App extends Component {
     })
   }
 
+  expandFunc = () => {
+    switch(this.state.expand) {
+      case "all":
+        return ()=>true
+      case "none":
+        return ()=>false
+      default:
+        return null
+    }
+  }
+
+  renderExpandButtons() {
+    return [
+      <button key="all" onClick={()=>this.setState({expand: 'all'})}>Развернуть</button>,
+      <button key="none" onClick={()=>this.setState({expand: 'none'})}>Свернуть</button>
+    ]
+  }
+
   render() {
     return (
       <div className="App">
         <MarkdownInput value={this.state.md} onChange={this.setMD} />
         <SlatePreview value={this.state.slate} />
-        <select value={this.state.example} onChange={this.setExample}>
-          {this.state.examples.map((ex) => (<option key={ex} value={ex}>{ex}</option>))}
-        </select>
+        <div>
+          <select style={{width: '100%'}} value={this.state.example} onChange={this.setExample}>
+            {this.state.examples.map((ex) => (<option key={ex} value={ex}>{ex}</option>))}
+          </select>
+          <div>{this.renderExpandButtons()}</div>
+        </div>
         <div>{this.state.error}</div>
-        <JSONTree data={this.state.slate} />
+        <JSONTree
+          data={this.state.slate}
+          shouldExpandNode={this.expandFunc()}
+        />
       </div>
     )
   }
