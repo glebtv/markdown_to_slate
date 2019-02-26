@@ -7,10 +7,10 @@ func processChecks(prnodes *[]Node) bool {
 			allChecks = false
 			continue
 		}
-		//log.Println("begin process check", node.Nodes[0])
-		var leaf Leaf
+
+		var leaf *Leaf
+		leafDepth := 0
 		if len(node.Nodes[0].Leaves) == 0 {
-			//allChecks = false
 			if len(node.Nodes[0].Nodes) == 0 {
 				allChecks = false
 				continue
@@ -19,13 +19,14 @@ func processChecks(prnodes *[]Node) bool {
 				allChecks = false
 				continue
 			} else {
-				leaf = node.Nodes[0].Nodes[0].Leaves[0]
+				leaf = &node.Nodes[0].Nodes[0].Leaves[0]
+				leafDepth = 2
 			}
-
 		} else {
-			leaf = node.Nodes[0].Leaves[0]
+			leaf = &node.Nodes[0].Leaves[0]
+			leafDepth = 1
 		}
-		//log.Println("leaf:", leaf.Text)
+
 		tx := leaf.Text
 		if len(tx) < 4 {
 			allChecks = false
@@ -34,28 +35,29 @@ func processChecks(prnodes *[]Node) bool {
 		prefix := tx[0:4]
 		//log.Println("process check", tx, prefix)
 		if len(node.Nodes) > 0 && (prefix == "[ ] " || prefix == "[x] ") {
-			textNode := Node{
-				Object: "text",
-				Leaves: []Leaf{
-					Leaf{
-						Object: "leaf",
-						Text:   tx[4:len(tx)],
-						Marks:  []Mark{},
-					},
-				},
-			}
-			ci := Node{
-				Object: "block",
-				Type:   "check-list-item",
-				Data:   map[string]interface{}{},
-				Nodes:  []Node{textNode},
+			leaf.Text = tx[4:len(tx)]
+			if leaf.Text == "" {
+				if leafDepth == 1 {
+					if len(node.Nodes[0].Leaves) == 1 {
+						node.Nodes[0].Leaves = nil
+					}
+				} else if leafDepth == 2 {
+					if len(node.Nodes[0].Nodes[0].Leaves) == 1 {
+						node.Nodes[0].Nodes[0].Leaves = nil
+					}
+				}
 			}
 
+			node.Type = "check-list-item"
+
+			if node.Data == nil {
+				node.Data = make(map[string]interface{}, 0)
+			}
 			checked := (prefix == "[x] ")
-			ci.Data["checked"] = checked
+			node.Data["checked"] = checked
 
 			//log.Println("checks replaces node")
-			(*prnodes)[i] = ci
+			(*prnodes)[i] = node
 		} else {
 			allChecks = false
 		}

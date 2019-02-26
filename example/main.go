@@ -178,6 +178,6 @@ func Run(input string) {
 }
 
 func main() {
-	println(Example)
+	//println(Example)
 	InitServer()
 }

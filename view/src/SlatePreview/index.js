@@ -17,12 +17,23 @@ class Image extends React.PureComponent {
     const src = data.get("src")
     const { attributes } = this.props
     return src ? (
-      <img alt="" src={src} ref={(r) => this.image = r} />
+      <div className="image" {...attributes}>image: {src}</div>
+      //<img {...attributes} alt="" src={src} ref={(r) => this.image = r} />
     ) : (
       <div {...attributes}>Loading...</div>
     )
   }
 }
+
+const schema = {
+  blocks: {
+    image: {
+      isVoid: true,
+    },
+    'check-list-item': {}
+  }
+}
+
 
 function slate2value(slate) {
   return Value.fromJSON({
@@ -202,6 +213,7 @@ class SlatePreview extends Component {
     return (
       <div className="SlatePreview">
         <Editor
+          schema={schema}
           value={this.state.value}
           onChange={this.onChange}
           renderNode={this.renderNode}
