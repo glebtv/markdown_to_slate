@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import {debounce } from 'lodash'
 import axios from 'axios'
 import MarkdownInput from './MarkdownInput'
-import SlatePreview from './OldApp'
+import SlatePreview from './SlatePreview'
+import './App.css'
 
 class App extends Component {
   state = {
@@ -45,7 +46,7 @@ class App extends Component {
 
   render() {
     return (
-      <div>
+      <div className="App">
         <MarkdownInput value={this.state.md} onChange={this.setMD} />
         <SlatePreview value={this.state.slate} />
       </div>

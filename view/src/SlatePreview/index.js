@@ -4,7 +4,7 @@ import prettyBytes from 'pretty-bytes';
 import { Value } from 'slate'
 import { Editor } from 'slate-react';
 //import data from "./data.json"
-import './App.css';
+import './index.css';
 
 //console.log("data:")
 //console.log(data)
@@ -200,7 +200,7 @@ class SlatePreview extends Component {
     //console.log('render', this.state);
 
     return (
-      <div className="App">
+      <div className="SlatePreview">
         <Editor
           value={this.state.value}
           onChange={this.onChange}
