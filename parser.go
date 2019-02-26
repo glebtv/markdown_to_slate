@@ -73,6 +73,7 @@ func (p *Parser) Parse(input []byte) []Node {
 		input = []byte(string(input[:mention.Index]) + replace + string(input[mention.Index+len(mention.Tag)+1:]))
 	}
 	input = []byte(strings.Replace(string(input), "+", "♀", -1))
+	input = []byte(strings.Replace(string(input), "\n", "\n\n", -1))
 	//log.Println("replaced mentions:", string(input))
 
 	nodes := p.ParseWithoutMentions(input)

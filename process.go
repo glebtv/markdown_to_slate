@@ -2,6 +2,7 @@ package markdown_to_slate
 
 import (
 	"log"
+	"strings"
 
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
@@ -279,7 +280,7 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 			l := ProcessTextNode(node)
 			// remove last newline of code block
 			if l.Text[len(l.Text)-1] == byte('\n') {
-				l.Text = l.Text[:len(l.Text)-1]
+				l.Text = strings.Replace(l.Text[:len(l.Text)-1], "\n\n", "\n", -1)
 			}
 			nds = append(nds, Node{
 				Object: "block",
@@ -298,7 +299,12 @@ func ProcessNode(node *blackfriday.Node, level int) (*Node, bool) {
 	}
 
 	if node.Type == blackfriday.Item {
-		nds := ProcessChildren(node, level+1)
+		var nds []Node
+		if node.FirstChild != nil && node.FirstChild == node.LastChild && node.FirstChild.Type == blackfriday.Paragraph {
+			nds = ProcessChildren(node.FirstChild, level+1)
+		} else {
+			nds = ProcessChildren(node, level+1)
+		}
 		return &Node{
 			Object: "block",
 			Type:   "list-item",
