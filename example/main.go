@@ -3,11 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/glebtv/markdown_to_slate"
 )
 
-var Example1 = "Code ```inline``` tag\n" +
+var Example = "Code ```inline``` tag\n" +
 	"Code2 block:\n" +
 	"```\nblock code\ntest\n```\n" +
 	`numbered list,
@@ -84,7 +87,7 @@ var Example11 = `test issue: #5 #6
 test mention: @test @gleb
 `
 
-var Example = `
+var Example12 = `
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
     (function (d, w, c) {
@@ -121,6 +124,33 @@ https://drive.google.com/file/d/fileid/view?usp=drivesdk
 Макет
 https://www.figma.com/file/fileid?node-id=0%3A1`
 
+func AllowHeader(c *gin.Context) {
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+	c.Next()
+}
+
+type MD2SlateParams struct {
+	Body string `json:"body"`
+}
+
+func InitServer() {
+	r := gin.Default()
+	r.Use(cors.Default())
+	r.Use(AllowHeader)
+	r.POST("/md2slate", func(c *gin.Context) {
+		var params MD2SlateParams
+		if err := c.ShouldBindJSON(&params); err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
+		}
+		slate := markdown_to_slate.Parse([]byte(params.Body))
+		s, err := json.MarshalIndent(slate, "", "    ")
+		if err != nil {
+			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		}
+		c.Data(http.StatusOK, "application/json", s)
+	})
+	r.Run()
+}
 func Run(input string) {
 	data := markdown_to_slate.Parse([]byte(input))
 	//s, err := json.Marshal(data)
@@ -132,5 +162,5 @@ func Run(input string) {
 }
 
 func main() {
-	Run(Example)
+	InitServer()
 }

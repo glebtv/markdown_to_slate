@@ -3,6 +3,8 @@ package markdown_to_slate
 import (
 	"github.com/gernest/mention"
 	blackfriday "gopkg.in/russross/blackfriday.v2"
+
+	"strings"
 )
 
 type Parser struct {
@@ -70,8 +72,12 @@ func (p *Parser) Parse(input []byte) []Node {
 		replace := "[@" + mention.Tag + "]" + "(@" + mention.Tag + ")"
 		input = []byte(string(input[:mention.Index]) + replace + string(input[mention.Index+len(mention.Tag)+1:]))
 	}
-
+	input = []byte(strings.Replace(string(input), "+", "♀", -1))
 	//log.Println("replaced mentions:", string(input))
 
-	return p.ParseWithoutMentions(input)
+	nodes := p.ParseWithoutMentions(input)
+	for i, _ := range nodes {
+		nodes[i].Replace("♀", "+")
+	}
+	return nodes
 }
