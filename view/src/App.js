@@ -3,6 +3,7 @@ import {debounce } from 'lodash'
 import axios from 'axios'
 import MarkdownInput from './MarkdownInput'
 import SlatePreview from './SlatePreview'
+import JSONTree from 'react-json-tree'
 import './App.css'
 
 class App extends Component {
@@ -74,6 +75,7 @@ class App extends Component {
           {this.state.examples.map((ex) => (<option key={ex} value={ex}>{ex}</option>))}
         </select>
         <div>{this.state.error}</div>
+        <JSONTree data={this.state.slate} />
       </div>
     )
   }
