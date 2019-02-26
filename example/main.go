@@ -4,8 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
+	"strings"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/glebtv/markdown_to_slate"
 )
@@ -137,6 +140,18 @@ func InitServer() {
 	r := gin.Default()
 	r.Use(cors.Default())
 	r.Use(AllowHeader)
+	r.Use(static.Serve("/files", static.LocalFile("../files", false)))
+	r.GET("/examples", func(c *gin.Context) {
+		matches, err := filepath.Glob("../files/*/*.md")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		for i, match := range matches {
+			matches[i] = "/" + strings.Join(strings.Split(match, "/")[1:], "/")
+		}
+		c.JSON(http.StatusOK, matches)
+	})
 	r.POST("/md2slate", func(c *gin.Context) {
 		var params MD2SlateParams
 		if err := c.ShouldBindJSON(&params); err != nil {
@@ -146,6 +161,7 @@ func InitServer() {
 		s, err := json.MarshalIndent(slate, "", "    ")
 		if err != nil {
 			c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+			return
 		}
 		c.Data(http.StatusOK, "application/json", s)
 	})

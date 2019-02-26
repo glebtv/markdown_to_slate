@@ -10,19 +10,22 @@ class App extends Component {
     md: "",
     slate: [],
     queue: [],
-    pending: false
+    pending: false,
+    examples: [],
+    example: "",
   }
 
   endpoint() {
-    return "http://localhost:8080/md2slate"
+    return "http://localhost:8080"
   }
+
 
   setSlate = debounce((value) => {
     if (this.state.pending) {
       return this.setState({queue: [value]})
     }
     this.setState({pending: true})
-    axios.post(this.endpoint(), {
+    axios.post(this.endpoint() + "/md2slate", {
       body: value
     }).then(resp => {
       this.setState({slate: resp.data, pending: false})
@@ -44,11 +47,33 @@ class App extends Component {
     this.setSlate(value)
   }
 
+  setExample = event => {
+    this.setState({example: event.target.value})
+    if (event.target.value === "") return
+    axios.get(this.endpoint() + event.target.value).then(resp => {
+      this.setMD(resp.data)
+    }).catch(err => {
+      this.setState({error: err.message})
+    })
+  }
+
+  componentDidMount() {
+    axios.get(this.endpoint() + "/examples").then(resp => {
+      this.setState({examples: ["", ...resp.data]})
+    }).catch(err => {
+      this.setState({error: err.message})
+    })
+  }
+
   render() {
     return (
       <div className="App">
         <MarkdownInput value={this.state.md} onChange={this.setMD} />
         <SlatePreview value={this.state.slate} />
+        <select value={this.state.example} onChange={this.setExample}>
+          {this.state.examples.map((ex) => (<option key={ex} value={ex}>{ex}</option>))}
+        </select>
+        <div>{this.state.error}</div>
       </div>
     )
   }
