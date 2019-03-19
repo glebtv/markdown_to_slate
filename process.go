@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/copier"
-	blackfriday "gopkg.in/russross/blackfriday.v2"
+	"github.com/russross/blackfriday"
 )
 
 var hLevels = map[int]string{
