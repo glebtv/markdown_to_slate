@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/jinzhu/copier"
-	"github.com/russross/blackfriday"
+	"github.com/russross/blackfriday/v2"
 )
 
 var hLevels = map[int]string{

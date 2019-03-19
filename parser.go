@@ -2,7 +2,7 @@ package markdown_to_slate
 
 import (
 	"github.com/gernest/mention"
-	"github.com/russross/blackfriday"
+	"github.com/russross/blackfriday/v2"
 
 	"strings"
 )
