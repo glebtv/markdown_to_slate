@@ -7,9 +7,9 @@ import (
 
 func StringifyNodes(buf *bytes.Buffer, nodes []Node) {
 	for _, node := range nodes {
-		//if node.Text {
-		//buf.WriteString(node.Text)
-		//}
+		if node.Text != nil {
+			buf.WriteString(*node.Text)
+		}
 		if node.Nodes != nil {
 			StringifyNodes(buf, node.Nodes)
 		}

@@ -8,6 +8,7 @@ type Mark struct {
 	Type   string                 `json:"type,omitempty"`
 }
 
+// deprecated
 type Leaf struct {
 	Object string `json:"object"`
 	Text   string `json:"text"`
@@ -23,7 +24,9 @@ type Node struct {
 	Type   string                 `json:"type,omitempty"`
 	Data   map[string]interface{} `json:"data,omitempty"`
 	Nodes  []Node                 `json:"nodes,omitempty"`
-	Leaves []Leaf                 `json:"leaves,omitempty"`
+	Text   *string                `json:"text,omitempty"`
+	// deprecated
+	Leaves []Leaf `json:"leaves,omitempty"`
 }
 
 func (node *Node) Replace(from, to string) {
