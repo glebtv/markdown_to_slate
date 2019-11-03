@@ -7,20 +7,21 @@ import (
 	"path/filepath"
 	"testing"
 
-	jd "github.com/josephburnett/jd/lib"
+	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/pretty"
 )
 
-func Run(input string) string {
+func Run(t *testing.T, input string) string {
 	data := Parse([]byte(input))
 	s, err := json.Marshal(data)
+	t.Log(string(s))
 	if err != nil {
-		panic(err)
+		t.Fatal(err)
 	}
 	return string(s)
 }
 
-func RunReverse(input string) string {
+func RunReverse(t *testing.T, input string) string {
 	data := Parse([]byte(input))
 	s, err := json.Marshal(data)
 	if err != nil {
@@ -37,86 +38,63 @@ func printJSON(j string) string {
 	return string(pretty.Color(pretty.Pretty([]byte(j)), nil))
 }
 
-func assertEqual(t *testing.T, a interface{}, b interface{}, message string) {
-	if a == b {
-		return
-	}
-	if len(message) == 0 {
-		aj, err := jd.ReadJsonString(a.(string))
-		if err != nil {
-			panic(err)
-		}
-		bj, err := jd.ReadJsonString(b.(string))
-		if err != nil {
-			panic(err)
-		}
-		message = fmt.Sprintf(
-			"\ngot:\n%v\nexpected:\n%v",
-			printJSON(a.(string)),
-			printJSON(b.(string)),
-		)
-		message += "\n" + aj.Diff(bj).Render()
-	}
-	t.Fatal(message)
-}
-
 const paragraphExample = "test paragraph\n"
 const paragraphResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"test paragraph","marks":[]}]}]}]`
 
 func TestParagraph(t *testing.T) {
-	s := Run(paragraphExample)
+	s := Run(t, paragraphExample)
 
-	assertEqual(t, s, paragraphResult, "")
+	assert.Equal(t, s, paragraphResult, "")
 }
 
 func TestParagraphReverse(t *testing.T) {
-	s := RunReverse(paragraphExample)
+	s := RunReverse(t, paragraphExample)
 
-	assertEqual(t, s, paragraphExample, "")
+	assert.Equal(t, s, paragraphExample, "")
 }
 
 const listExample = "- list\n- items"
 const listResult = `[{"object":"block","type":"bulleted-list","nodes":[{"object":"block","type":"list-item","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"list","marks":[]}]}]},{"object":"block","type":"list-item","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"items","marks":[]}]}]}]}]`
 
 func TestList(t *testing.T) {
-	s := Run(listExample)
+	s := Run(t, listExample)
 
-	assertEqual(t, s, listResult, "")
+	assert.Equal(t, s, listResult, "")
 }
 
-const checklistResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"check list:","marks":[]},{"object":"leaf","text":"- [ ] unchecked","marks":[]},{"object":"leaf","text":"- [x] checked","marks":[]}]}]}]`
+const checklistResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"check list:","marks":[]}]}]},{"object":"block","type":"paragraph","nodes":[{"object":"block","type":"check-list-item","data":{"checked":false},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"unchecked","marks":[]}]}]},{"object":"block","type":"check-list-item","data":{"checked":true},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"checked","marks":[]}]}]}]}]`
 
 func TestChecklist(t *testing.T) {
-	s := Run("check list:\n- [ ] unchecked\n- [x] checked")
+	s := Run(t, "check list:\n- [ ] unchecked\n- [x] checked")
 
-	assertEqual(t, s, checklistResult, "")
+	assert.Equal(t, s, checklistResult, "")
 }
 
-const codeResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"code ","marks":[]},{"object":"leaf","text":":","marks":[]}]}]},{"object":"block","type":"paragraph"}]`
+const codeResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"code ","marks":[]}]},{"object":"text","leaves":[{"object":"leaf","text":"inline","marks":[{"object":"mark","type":"code"}]}]},{"object":"text","leaves":[{"object":"leaf","text":":","marks":[]}]}]},{"object":"block","type":"code","nodes":[{"object":"block","type":"code_line","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"\nblock code\n","marks":[]}]}]}]}]`
 
 func TestCode(t *testing.T) {
-	s := Run("code ```inline```:\n```\nblock code\n```\n")
+	s := Run(t, "code ```inline```:\n```\nblock code\n```\n")
 
-	assertEqual(t, s, codeResult, "")
+	assert.Equal(t, s, codeResult, "")
 }
 
 const linkExample = `[rt1622_regions_sorted.csv](/original/rt1622_regions_sorted.csv) (340.9 KiB)
 [rt1622_cities_sorted.csv](/original/rt1622_cities_sorted.csv) (22.6 MiB)`
-const linkResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"","marks":[]}]},{"object":"inline","type":"link","data":{"href":"/original/rt1622_regions_sorted.csv","title":""}},{"object":"text","leaves":[{"object":"leaf","text":" (340.9 KiB)","marks":[]},{"object":"leaf","text":"","marks":[]}]},{"object":"inline","type":"link","data":{"href":"/original/rt1622_cities_sorted.csv","title":""}},{"object":"text","leaves":[{"object":"leaf","text":" (22.6 MiB)","marks":[]}]}]}]`
+const linkResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"inline","type":"link","data":{"href":"/original/rt1622_regions_sorted.csv","title":""},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"rt1622_regions_sorted.csv","marks":[]}]}]},{"object":"text","leaves":[{"object":"leaf","text":" (340.9 KiB)","marks":[]}]}]},{"object":"block","type":"paragraph","nodes":[{"object":"inline","type":"link","data":{"href":"/original/rt1622_cities_sorted.csv","title":""},"nodes":[{"object":"text","leaves":[{"object":"leaf","text":"rt1622_cities_sorted.csv","marks":[]}]}]},{"object":"text","leaves":[{"object":"leaf","text":" (22.6 MiB)","marks":[]}]}]}]`
 
 func TestLink(t *testing.T) {
-	s := Run(linkExample)
+	s := Run(t, linkExample)
 
-	assertEqual(t, s, linkResult, "")
+	assert.Equal(t, s, linkResult, "")
 }
 
 const imageExample = `[![i4.png](/system/i4.jpg)](/system/i4.png?1451419607 "i4.png 22.6 KiB")`
-const imageResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"text","leaves":[{"object":"leaf","text":"","marks":[]}]},{"object":"inline","type":"link","data":{"href":"/system/i4.png?1451419607","title":"i4.png 22.6 KiB"}}]}]`
+const imageResult = `[{"object":"block","type":"paragraph","nodes":[{"object":"block","type":"image","data":{"src":"/system/i4.jpg","title":""}}]}]`
 
 func TestImage(t *testing.T) {
-	s := Run(imageExample)
+	s := Run(t, imageExample)
 
-	assertEqual(t, s, imageResult, "")
+	assert.Equal(t, s, imageResult, "")
 }
 
 func TestFiles(t *testing.T) {
@@ -134,7 +112,7 @@ func TestFiles(t *testing.T) {
 		if err != nil {
 			t.Fatal(fmt.Sprintf("read File %v with error %v", sfn, err.Error()))
 		}
-		s := Run(string(content))
-		assertEqual(t, s, string(slate), "")
+		s := Run(t, string(content))
+		assert.Equal(t, s, string(slate), "")
 	}
 }
